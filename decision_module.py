@@ -54,10 +54,9 @@ class DecisionModuleOffline:
         for q in self.drop_ratios:
             best_drop_scores.append(np.sum(test_score_sample[: int(q * len(test_score_sample))]) / S)
 
-            # calculate the drop score ration of random dropping strategy
+        # calculate the drop score ration of random dropping strategy
         random_drop_scores = []
         for q in self.drop_ratios:
             np.random.shuffle(test_score_sample)
             random_drop_scores.append(np.sum(test_score_sample[: int(q * len(test_score_sample))]) / S)
         return drop_scores, best_drop_scores, random_drop_scores, drop_ratios_alg
-

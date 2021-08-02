@@ -1,4 +1,4 @@
-from DecisionModule import DecisionModuleOffline, DecisionModuleOnline
+from decision_module import DecisionModuleOffline, DecisionModuleOnline
 from utils import plot, plot_bar
 import numpy as np
 
