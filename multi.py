@@ -15,7 +15,7 @@ class Resquest(BaseHTTPRequestHandler):
         return int(decider.decide(score, drop_rate))
 
     def explore_approach():
-        data1 = {'drop':0}
+        data1 = {'drop':0} # do not drop
 
     def do_POST(self):
         r = random.random()
