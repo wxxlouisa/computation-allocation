@@ -31,5 +31,5 @@
 *.out
 *.app
 source.post.csv
-/trans_data/
 /__pycache__/
+/trans_data/
