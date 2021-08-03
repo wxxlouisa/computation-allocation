@@ -31,3 +31,4 @@
 *.out
 *.app
 source.post.csv
+/trans_data/

@@ -11,7 +11,7 @@ class DecisionModuleOnline:
 
     def decide(self, score, drop_ratio):
         try:
-            return score < self.params[drop_ratio]
+            return score < self.params[drop_ratio] # true: drop
         except KeyError as e:
             print("Error when looking for the parameter of given drop_ratio: ", e)
 
