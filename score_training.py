@@ -56,7 +56,7 @@ def main():
 
         start_time = time.time()
 
-        for _epoch in range(1):
+        for _epoch in range(3):
             for _, uij in DataInput(df_train, 1024, column_name_list):
                 loss, spear = model.train(sess, uij)
 

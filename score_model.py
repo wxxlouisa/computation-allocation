@@ -41,6 +41,9 @@ class Model(object):
         column_9_emb = tf.nn.embedding_lookup(column_9_emb_w, self.column_9)
         column_10_emb = tf.nn.embedding_lookup(column_10_emb_w, self.column_10)
 
+        # emb_features = [column_1_emb, column_2_emb, column_3_emb, column_4_emb, column_5_emb,
+        #                 column_6_emb, column_7_emb, column_8_emb, column_9_emb, column_10_emb]
+
         emb_features = [column_1_emb, column_2_emb, column_3_emb, column_4_emb, column_5_emb,
                         column_6_emb, column_7_emb, column_8_emb, column_9_emb, column_10_emb]
 
