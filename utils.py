@@ -1,5 +1,19 @@
 import numpy as np
+import os
 from matplotlib import pyplot as plt
+
+ROOT_PATH = "."
+TRANS_ROOT_PATH = "./trans_data"
+
+# 比赛数据集路径
+DATASET_ORI_PATH = os.path.join(ROOT_PATH, "source.post.csv")
+DATASET_TRANS_PATH = os.path.join(TRANS_ROOT_PATH, "source.post.csv")
+
+MAP_PATH = os.path.join(TRANS_ROOT_PATH, "map.json")
+CNT_PATH = os.path.join(TRANS_ROOT_PATH, "cnt.json")
+MODEL_PATH = os.path.join(TRANS_ROOT_PATH, "demo.ckpt")
+
+RANDOM_STATE = 2021
 
 def plot(x, y_list, labels, xlabel, ylabel, title):
     fig, ax = plt.subplots()
