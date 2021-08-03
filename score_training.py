@@ -42,8 +42,8 @@ def data_transform():
         json.dump(cnt_dict, f)
 
     df_shuffle = df.sample(frac=1.0, random_state=RANDOM_STATE)
-    df_train = df_shuffle.iloc[:int(len(df_shuffle) * 0.2), :]
-    df_eval = df_shuffle.iloc[int(len(df_shuffle) * 0.2):, :]
+    df_train = df_shuffle.iloc[:int(len(df_shuffle) * 0.8), :]
+    df_eval = df_shuffle.iloc[int(len(df_shuffle) * 0.8):, :]
     return cnt_dict, df_train, df_eval, column_name_list
 
 def main():
@@ -65,16 +65,30 @@ def main():
                       (_epoch, _iter, time.time() - start_time, loss, spear))
                 sys.stdout.flush()
                 model.global_epoch_step_op.eval()
-                break
 
         eval_data_generator = DataEvalInput(df_eval, column_name_list)
+        print(df_eval.shape)
         uij = eval_data_generator.generate_eval_data()
-        loss = model.evaluate(sess, uij)
-        print(loss)
+        loss, output, spear = model.evaluate(sess, uij)
+        print('Eval_loss: %.4f \t Spearman: %.4f' % (loss, spear))
+        eval_res_df = pd.DataFrame()
+        eval_res_df['predict'] = output
+        eval_res_df['label'] = uij['score']
+        eval_res_df.to_csv('./trans_data/eval_out.csv')
+
+        for _epoch in range(1):
+            for _, uij in DataInput(df_eval, 1024, column_name_list):
+                loss, spear = model.train(sess, uij)
+
+                _iter = model.global_epoch_step.eval()
+                print('\t Epoch %d \t Iter %d \t Cost time: %.2f \t Train_loss: %.4f \t Spearman: %.4f' %
+                      (_epoch, _iter, time.time() - start_time, loss, spear))
+                sys.stdout.flush()
+                model.global_epoch_step_op.eval()
 
         saver = tf.train.Saver()
-        saver.save(sess, MODEL_PATH)
-
+        saver.save(sess, MODEL_PATH)sss
+        print("Finish Training!")
 
 if __name__ == "__main__":
     create_dir()
