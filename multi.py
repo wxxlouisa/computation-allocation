@@ -10,10 +10,11 @@ class Resquest(BaseHTTPRequestHandler):
 
     def if_drop(self, req_json, drop_rate):
         req_json.pop('drop_rate')
+        req_json['score'] = 0.0
         score = estimator.predict(req_json)
         return int(decider.decide(score, drop_rate))
     def explore_approach():
-        data1 =
+        data1 = {'drop':0}
     def do_POST(self):
         r = random.random()
         if (r < 0.2):

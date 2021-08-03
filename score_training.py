@@ -87,7 +87,7 @@ def main():
                 model.global_epoch_step_op.eval()
 
         saver = tf.train.Saver()
-        saver.save(sess, MODEL_PATH)sss
+        saver.save(sess, MODEL_PATH)
         print("Finish Training!")
 
 if __name__ == "__main__":
