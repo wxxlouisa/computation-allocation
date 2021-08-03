@@ -1,4 +1,5 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
 import json
 import random
 #from score_estimation import ScoreEstimation
@@ -30,10 +31,11 @@ class Resquest(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data.encode('utf-8'))
 
-
+class ThreadingHTTPServer (ThreadingMixIn, HTTPServer):
+    pass
 if __name__ == '__main__':
     host = ('0.0.0.0', 2002)
-    server = HTTPServer(host, Resquest)
+    server = ThreadingHTTPServer(host, Resquest)
     print("Starting server, listen at: %s:%s" % host)
 
 #    estimator = ScoreEstimation()
