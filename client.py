@@ -1,35 +1,60 @@
 import http.client, urllib.parse
+import pandas as pd
 import json
 
-diag1 = {"req_id": "98c97f55-eb45-4d52-b068-c2f1a0d8fed6u1501",
-         "drop_rate":0.5,
-         "column_1": "1b41a7903979e216de70b53301f7a9c0",
-          "column_2": "872ada276a69ae5d697f2e0d4bcf5c3e",
-          "column_3": "6207f3b4a3142c333c502e017a05f504",
-          "column_4": "54022593df8a87b4f4986dee6024183b",
-          "column_5": "a6eaf58dfd869886465e0a0cf4b7ba62",
-          "column_6": "98f674d60849b7871b2f1ef3ea6307b3",
-          "column_7": "97e79c9ab772afa1cd5124d544931801",
-          "column_8": "69d882255838835557dfe4c4cc3e4174",
-          "column_9": "487140fbe07ced0bcc1500ca5bcf8baa",
-          "column_10": "d50b6b95ef4d5913abd29e3d764f8391",
-         "score":1.0,
-         "need_back_up":0,
-          };
-class client
-#要发送的数据 ，因为要转成json格式，所以是字典类型
-data = json.dumps(diag1)
 
-headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-conn = http.client.HTTPConnection('localhost', 2002)
-conn.request('POST', '/ippinte/api/scene/getall', data.encode('utf-8'), headers)#往server端发送数据
-response = conn.getresponse()
+class TestDiag1:
+    def send_drop_ratio(self, drop_ratio, diag1):
+        diag1['drop_rate'] = drop_ratio
+        diag1['need_back_up'] = 0
+        drop_res = self.test_diag1(diag1)
+        return drop_res['drop']
 
-stc1 = response.read().decode('utf-8')#接受server端返回的数据
-stc = json.loads(stc1)
+    def test_diag1(self, diag1):
+        #要发送的数据,是字典类型
+        data = json.dumps(diag1)
+        headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+        conn = http.client.HTTPConnection('localhost', 2002)
+        conn.request('POST', '/ippinte/api/scene/getall', data.encode('utf-8'), headers)#往server端发送数据
+        response = conn.getresponse()
 
-print("-----------------接受server端返回的数据----------------")
-print(stc)
-print("-----------------接受server端返回的数据----------------")
+        stc1 = response.read().decode('utf-8')#接受server端返回的数据
+        stc = json.loads(stc1)
+ #       print("-----------------接受server端返回的数据----------------")
+#        print(stc)
+        return stc
+  #      print("-----------------finish----------------")
+        conn.close()
 
-conn.close()
+if __name__ == '__main__':
+
+    obj = TestDiag1()
+    total = 0
+    sum = 0
+    drop_cnt = 0
+    data = pd.read_csv('./data/source.post.csv')
+    my_rec = []
+    batch_size = 200
+    rate = 0.15
+
+    for i in range(0, batch_size):
+        if i % 10 == 0:
+            print(i)
+        diag1 = data.sample().T.iloc[:,0].to_dict()
+        res = obj.send_drop_ratio(rate, diag1) # send dict
+        if res == 1: # drop
+            total = total + diag1['score']
+            drop_cnt += 1
+        sum = sum + diag1['score']
+        my_rec.append(diag1['score'])
+
+    my_drop_score_ratio = total / sum
+    best_score_ratio = 0.0
+    my_rec.sort()
+    cnt = int(batch_size * rate)
+    for i in range(0, cnt):
+        best_score_ratio += my_rec[i]
+    best_score_ratio = best_score_ratio / sum
+
+    print(best_score_ratio, my_drop_score_ratio)
+    print(drop_cnt / batch_size)

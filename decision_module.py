@@ -1,3 +1,5 @@
+import sys
+sys.path.append('/home/wangxuanxuan/computation-allocation/')
 import numpy as np
 import pandas as pd
 
@@ -6,6 +8,7 @@ class DecisionModuleOnline:
     def __init__(self, param_file_name='params.npy'):
         try:
             self.params = np.load(param_file_name, allow_pickle=True).item()
+            print(self.params)
         except FileNotFoundError as e:
             print("Error when loading parameter file", e)
 

@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/wangxuanxuan/computation-allocation/score_estimation/trans_data/demo.ckpt"
+all_model_checkpoint_paths: "/home/wangxuanxuan/computation-allocation/score_estimation/trans_data/demo.ckpt"

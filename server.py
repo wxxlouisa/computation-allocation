@@ -3,8 +3,8 @@ from socketserver import ThreadingMixIn
 import json
 import random
 import time
-from score_estimation import ScoreEstimation
-from decision_module import DecisionModuleOnline
+from score_estimation.score_estimation import ScoreEstimation
+from decision_module.decision_module import DecisionModuleOnline
 
 class Resquest(BaseHTTPRequestHandler):
     def do_back_up(self, req_json, drop_rate):
@@ -17,9 +17,9 @@ class Resquest(BaseHTTPRequestHandler):
                 my_set[key] = 1
         loc = req_json['column_1'] #string
         if (loc in my_set):
-            return 0 # do not drop
+            return 1 # drop
         else:
-            return 1
+            return 0 # do not drop
 
     def if_drop(self, req_json, drop_rate):
         if (req_json['need_back_up'] == 1):
@@ -29,6 +29,7 @@ class Resquest(BaseHTTPRequestHandler):
         req_json.pop('need_back_up')
         req_json['score'] = 0.0
         score = estimator.predict(req_json)
+        print(decider.params)
         return int(decider.decide(score, drop_rate))
 
     def explore_approach(self):
@@ -45,8 +46,6 @@ class Resquest(BaseHTTPRequestHandler):
             res = json.loads(res1)
             if (not 'need_back_up' in res):
                 res['need_back_up'] = 0
-#            print(res)
-
             drop_rate = res['drop_rate']
             # create resp data
             data1 = {'drop':self.if_drop(res, drop_rate)}
@@ -58,16 +57,13 @@ class Resquest(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data.encode('utf-8'))
         end = time.time()
-        print("time cost", str(end - start), "seconds")
-
-class ThreadingHTTPServer (ThreadingMixIn, HTTPServer):
-    pass
+#        print("time cost", str(end - start), "seconds")
 
 if __name__ == '__main__':
     host = ('0.0.0.0', 2002)
     server = HTTPServer(host, Resquest)
-    print("Starting sever, listen at: %s:%s" % host)
-    cnt_ratio_rec = json.load(open('./cnt_cusum_dict.json'))
+ #   print("Starting sever, listen at: %s:%s" % host)
+    cnt_ratio_rec = json.load(open('./data/cnt_cusum_dict.json'))
     estimator = ScoreEstimation()
-    decider = DecisionModuleOnline()
+    decider = DecisionModuleOnline('/home/wangxuanxuan/computation-allocation/output/params.npy')
     server.serve_forever()
