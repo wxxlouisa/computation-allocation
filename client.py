@@ -1,18 +1,6 @@
 import http.client, urllib.parse
 import json
 
-# diag1 = {    'req_id':'111'
-#              , 'drop_rate':0.8
-#              , 'column_1':''
-#              , 'column_2':''
-#              , 'column_3':''
-#              , 'column_4':''
-#              , 'column_5':''
-#              , 'column_6':''
-#              , 'column_7':''
-#              , 'column_8':''
-#              , 'column_9':''
-#              , 'column_10':''}
 diag1 = {"req_id": "98c97f55-eb45-4d52-b068-c2f1a0d8fed6u1501",
          "drop_rate":0.5,
          "column_1": "1b41a7903979e216de70b53301f7a9c0",
@@ -26,7 +14,9 @@ diag1 = {"req_id": "98c97f55-eb45-4d52-b068-c2f1a0d8fed6u1501",
           "column_9": "487140fbe07ced0bcc1500ca5bcf8baa",
           "column_10": "d50b6b95ef4d5913abd29e3d764f8391",
          "score":1.0,
+         "need_back_up":0,
           };
+class client
 #要发送的数据 ，因为要转成json格式，所以是字典类型
 data = json.dumps(diag1)
 

@@ -7,30 +7,51 @@ from score_estimation import ScoreEstimation
 from decision_module import DecisionModuleOnline
 
 class Resquest(BaseHTTPRequestHandler):
+    def do_back_up(self, req_json, drop_rate):
+        # return param: 0 or 1
+        my_set = {}
+        for key in cnt_ratio_rec:
+            if cnt_ratio_rec[key] > drop_rate:
+                break
+            else:
+                my_set[key] = 1
+        loc = req_json['column_1'] #string
+        if (loc in my_set):
+            return 0 # do not drop
+        else:
+            return 1
 
     def if_drop(self, req_json, drop_rate):
+        if (req_json['need_back_up'] == 1):
+             return self.do_back_up(req_json, drop_rate)
+
         req_json.pop('drop_rate')
+        req_json.pop('need_back_up')
         req_json['score'] = 0.0
         score = estimator.predict(req_json)
         return int(decider.decide(score, drop_rate))
 
-    def explore_approach():
-        data1 = {'drop':0} # do not drop
+    def explore_approach(self):
+         return {'drop':0} # do not drop
 
     def do_POST(self):
         r = random.random()
+        start = time.time()
         if (r < 0.2):
-            data1 =  explore_approach()
+            data1 =  self.explore_approach()
         else:
             req_datas = self.rfile.read(int(self.headers['content-length']))
-            start = time.time()
             res1 = req_datas.decode('utf-8')
             res = json.loads(res1)
+            if (not 'need_back_up' in res):
+                res['need_back_up'] = 0
+#            print(res)
+
             drop_rate = res['drop_rate']
             # create resp data
             data1 = {'drop':self.if_drop(res, drop_rate)}
-            # encode python obj -> json obj
 
+        # encode python obj -> json obj
         data = json.dumps(data1)
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -46,7 +67,7 @@ if __name__ == '__main__':
     host = ('0.0.0.0', 2002)
     server = HTTPServer(host, Resquest)
     print("Starting sever, listen at: %s:%s" % host)
-
+    cnt_ratio_rec = json.load(open('./cnt_cusum_dict.json'))
     estimator = ScoreEstimation()
     decider = DecisionModuleOnline()
     server.serve_forever()
