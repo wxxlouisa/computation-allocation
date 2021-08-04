@@ -1,9 +1,12 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
+from multiprocessing import Process
+
 import json
 import random
 import time
 from score_estimation.score_estimation import ScoreEstimation
+from score_estimation.lightgbm_regression import lgbm
 from decision_module.decision_module import DecisionModuleOnline
 
 class Resquest(BaseHTTPRequestHandler):
@@ -29,7 +32,6 @@ class Resquest(BaseHTTPRequestHandler):
         req_json.pop('need_back_up')
         req_json['score'] = 0.0
         score = estimator.predict(req_json)
-        print(decider.params)
         return int(decider.decide(score, drop_rate))
 
     def explore_approach(self):
@@ -64,6 +66,7 @@ if __name__ == '__main__':
     server = HTTPServer(host, Resquest)
  #   print("Starting sever, listen at: %s:%s" % host)
     cnt_ratio_rec = json.load(open('./data/cnt_cusum_dict.json'))
-    estimator = ScoreEstimation()
+#    estimator = ScoreEstimation()
+    estimator = lgbm()
     decider = DecisionModuleOnline('/home/wangxuanxuan/computation-allocation/output/params.npy')
     server.serve_forever()

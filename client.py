@@ -15,7 +15,8 @@ class TestDiag1:
         data = json.dumps(diag1)
         headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
         conn = http.client.HTTPConnection('localhost', 2002)
-        conn.request('POST', '/ippinte/api/scene/getall', data.encode('utf-8'), headers)#往server端发送数据
+        #往server端发送数据
+        conn.request('POST', '/ippinte/api/scene/getall', data.encode('utf-8'), headers)
         response = conn.getresponse()
 
         stc1 = response.read().decode('utf-8')#接受server端返回的数据
@@ -34,11 +35,11 @@ if __name__ == '__main__':
     drop_cnt = 0
     data = pd.read_csv('./data/source.post.csv')
     my_rec = []
-    batch_size = 200
-    rate = 0.15
+    batch_size = 10000
+    rate = 0.05
 
     for i in range(0, batch_size):
-        if i % 10 == 0:
+        if i % 100 == 0:
             print(i)
         diag1 = data.sample().T.iloc[:,0].to_dict()
         res = obj.send_drop_ratio(rate, diag1) # send dict
