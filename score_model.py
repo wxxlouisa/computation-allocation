@@ -66,8 +66,8 @@ class Model(object):
 
         self.loss = tf.reduce_mean(tf.losses.absolute_difference(self.y, self.output))
 
-        trainable_params = tf.trainable_variables()
-        self.train_op = tf.train.GradientDescentOptimizer(learning_rate=0.1).minimize(self.loss)
+        trainable_params = tf.compat.v1.trainable_variables()
+        self.train_op = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=0.1).minimize(self.loss)
 
         self.spear = self.get_spearman_rankcor(self.y, self.output)
         self.pear = self.get_pearson_rankcor(self.y, self.output)

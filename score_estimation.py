@@ -18,7 +18,7 @@ class ScoreEstimation(object):
 
         self.model = Model(self.cnt_dict)
 
-        saver = tf.train.Saver()
+        saver = tf.compat.v1.train.Saver()
         saver.restore(self.sess, MODEL_PATH)
 
     def predict(self, features):
