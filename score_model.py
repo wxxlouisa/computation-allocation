@@ -1,5 +1,5 @@
 import tensorflow as tf
-from scipy.stats import spearmanr
+from scipy.stats import spearmanr, pearsonr
 
 class Model(object):
     def __init__(self, cnt_dict):
@@ -17,16 +17,16 @@ class Model(object):
         # 标签y
         self.y = tf.placeholder(tf.float32, [None, ], name='label')
         # embedding的lookup table
-        column_1_emb_w = tf.get_variable("column_1_emb_w", [cnt_dict['column_1'], 8])
-        column_2_emb_w = tf.get_variable("column_2_emb_w", [cnt_dict['column_2'], 16])
-        column_3_emb_w = tf.get_variable("column_3_emb_w", [cnt_dict['column_3'], 8])
-        column_4_emb_w = tf.get_variable("column_4_emb_w", [cnt_dict['column_4'], 4])
-        column_5_emb_w = tf.get_variable("column_5_emb_w", [cnt_dict['column_5'], 4])
-        column_6_emb_w = tf.get_variable("column_6_emb_w", [cnt_dict['column_6'], 8])
-        column_7_emb_w = tf.get_variable("column_7_emb_w", [cnt_dict['column_7'], 4])
-        column_8_emb_w = tf.get_variable("column_8_emb_w", [cnt_dict['column_8'], 4])
-        column_9_emb_w = tf.get_variable("column_9_emb_w", [cnt_dict['column_9'], 8])
-        column_10_emb_w = tf.get_variable("column_10_emb_w", [cnt_dict['column_10'], 8])
+        column_1_emb_w = tf.get_variable("column_1_emb_w", [cnt_dict['column_1'], 4])
+        column_2_emb_w = tf.get_variable("column_2_emb_w", [cnt_dict['column_2'], 8])
+        column_3_emb_w = tf.get_variable("column_3_emb_w", [cnt_dict['column_3'], 4])
+        column_4_emb_w = tf.get_variable("column_4_emb_w", [cnt_dict['column_4'], 2])
+        column_5_emb_w = tf.get_variable("column_5_emb_w", [cnt_dict['column_5'], 2])
+        column_6_emb_w = tf.get_variable("column_6_emb_w", [cnt_dict['column_6'], 4])
+        column_7_emb_w = tf.get_variable("column_7_emb_w", [cnt_dict['column_7'], 2])
+        column_8_emb_w = tf.get_variable("column_8_emb_w", [cnt_dict['column_8'], 2])
+        column_9_emb_w = tf.get_variable("column_9_emb_w", [cnt_dict['column_9'], 4])
+        column_10_emb_w = tf.get_variable("column_10_emb_w", [cnt_dict['column_10'], 4])
         # 每个user自己的偏置
         # column_2_b = tf.get_variable("column_2_b_", [cnt_dict['column_2']], initializer=tf.constant_initializer(0.0))
 
@@ -49,36 +49,36 @@ class Model(object):
 
         emb = tf.concat(values=emb_features, axis=1)
 
-        layer_1 = tf.layers.dense(emb, 64, activation=tf.nn.relu, name='f1')
-        layer_2 = tf.layers.dense(layer_1, 32, activation=tf.nn.relu, name='f2')
-        layer_3 = tf.layers.dense(layer_2, 16, activation=tf.nn.relu, name='f3')
+        layer_1 = tf.layers.dense(emb, 32, activation=tf.nn.relu, name='f1')
+        layer_2 = tf.layers.dense(layer_1, 16, activation=tf.nn.relu, name='f2')
+        layer_3 = tf.layers.dense(layer_2, 8, activation=tf.nn.relu, name='f3')
         layer_4 = tf.layers.dense(layer_3, 1, activation=None, name='f4')
         layer_4 = tf.reshape(layer_4, [-1])
 
         # emb_b = tf.gather(column_2_b, self.column_2)
 
-        self.output = layer_4
+        self.output = tf.nn.sigmoid(layer_4)
 
         # Step variable
         self.global_step = tf.Variable(0, trainable=False, name='global_step')
         self.global_epoch_step = tf.Variable(0, trainable=False, name='global_epoch_step')
         self.global_epoch_step_op = tf.assign(self.global_epoch_step, self.global_epoch_step + 1)
 
-        #         self.loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(self.y, self.output))))
-        self.loss = tf.reduce_mean(tf.square(tf.subtract(self.y, self.output)))
+        self.loss = tf.reduce_mean(tf.losses.absolute_difference(self.y, self.output))
 
         trainable_params = tf.trainable_variables()
         self.train_op = tf.train.GradientDescentOptimizer(learning_rate=0.1).minimize(self.loss)
 
         self.spear = self.get_spearman_rankcor(self.y, self.output)
+        self.pear = self.get_pearson_rankcor(self.y, self.output)
 
     def train(self, sess, uij):
-        loss, _, spear = sess.run([self.loss, self.train_op, self.spear], feed_dict=self.generate_feeddict(uij))
-        return loss, spear
+        loss, _, spear, pear = sess.run([self.loss, self.train_op, self.spear, self.pear], feed_dict=self.generate_feeddict(uij))
+        return loss, spear, pear
 
     def evaluate(self, sess, uij):
-        loss, output, spear = sess.run([self.loss, self.output, self.spear], feed_dict=self.generate_feeddict(uij))
-        return loss, output, spear
+        loss, output, spear, pear = sess.run([self.loss, self.output, self.spear, self.pear], feed_dict=self.generate_feeddict(uij))
+        return loss, output, spear, pear
 
     def predict(self, sess, uij):
         output = sess.run([self.output], feed_dict=self.generate_feeddict(uij))
@@ -93,6 +93,10 @@ class Model(object):
 
     def get_spearman_rankcor(self, y_true, y_pred):
         return (tf.py_function(spearmanr, [tf.cast(y_pred, tf.float32),
+                                           tf.cast(y_true, tf.float32)], Tout=tf.float32))
+
+    def get_pearson_rankcor(self, y_true, y_pred):
+        return (tf.py_function(pearsonr, [tf.cast(y_pred, tf.float32),
                                            tf.cast(y_true, tf.float32)], Tout=tf.float32))
 
 class DataInput:

@@ -56,33 +56,33 @@ def main():
 
         start_time = time.time()
 
-        for _epoch in range(3):
+        for _epoch in range(1):
             for _, uij in DataInput(df_train, 1024, column_name_list):
-                loss, spear = model.train(sess, uij)
+                loss, spear, pear = model.train(sess, uij)
 
                 _iter = model.global_epoch_step.eval()
-                print('\t Epoch %d \t Iter %d \t Cost time: %.2f \t Train_loss: %.4f \t Spearman: %.4f' %
-                      (_epoch, _iter, time.time() - start_time, loss, spear))
+                print('\t Epoch %d \t Iter %d \t Cost time: %.2f \t Train_loss: %.4f \t Spearman: %.4f \t Pear: %.4f' %
+                      (_epoch, _iter, time.time() - start_time, loss, spear, pear))
                 sys.stdout.flush()
                 model.global_epoch_step_op.eval()
 
         eval_data_generator = DataEvalInput(df_eval, column_name_list)
         print(df_eval.shape)
         uij = eval_data_generator.generate_eval_data()
-        loss, output, spear = model.evaluate(sess, uij)
-        print('Eval_loss: %.4f \t Spearman: %.4f' % (loss, spear))
+        loss, output, spear, pear = model.evaluate(sess, uij)
+        print('Eval_loss: %.4f \t Spearman: %.4f \t Pear: %.4f' % (loss, spear, pear))
         eval_res_df = pd.DataFrame()
         eval_res_df['predict'] = output
         eval_res_df['label'] = uij['score']
         eval_res_df.to_csv('./trans_data/eval_out.csv')
 
-        for _epoch in range(1):
-            for _, uij in DataInput(df_eval, 1024, column_name_list):
-                loss, spear = model.train(sess, uij)
+        for _epoch in range(0):
+            for _, uij in DataInput(df_eval, 512, column_name_list):
+                loss, spear, pear = model.train(sess, uij)
 
                 _iter = model.global_epoch_step.eval()
-                print('\t Epoch %d \t Iter %d \t Cost time: %.2f \t Train_loss: %.4f \t Spearman: %.4f' %
-                      (_epoch, _iter, time.time() - start_time, loss, spear))
+                print('\t Epoch %d \t Iter %d \t Cost time: %.2f \t Train_loss: %.4f \t Spearman: %.4f \t Pear: %.4f' %
+                      (_epoch, _iter, time.time() - start_time, loss, spear, pear))
                 sys.stdout.flush()
                 model.global_epoch_step_op.eval()
 
