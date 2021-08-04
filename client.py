@@ -6,7 +6,7 @@ import json
 class TestDiag1:
     def send_drop_ratio(self, drop_ratio, diag1):
         diag1['drop_rate'] = drop_ratio
-        diag1['need_back_up'] = 0
+        diag1['need_back_up'] = 1
         drop_res = self.test_diag1(diag1)
         return drop_res['drop']
 
@@ -35,8 +35,8 @@ if __name__ == '__main__':
     drop_cnt = 0
     data = pd.read_csv('./data/source.post.csv')
     my_rec = []
-    batch_size = 10000
-    rate = 0.05
+    batch_size = 500
+    rate = 0.01
 
     for i in range(0, batch_size):
         if i % 100 == 0:

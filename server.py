@@ -40,7 +40,7 @@ class Resquest(BaseHTTPRequestHandler):
     def do_POST(self):
         r = random.random()
         start = time.time()
-        if (r < 0.2):
+        if (r < 0.0001):
             data1 =  self.explore_approach()
         else:
             req_datas = self.rfile.read(int(self.headers['content-length']))
@@ -67,6 +67,6 @@ if __name__ == '__main__':
  #   print("Starting sever, listen at: %s:%s" % host)
     cnt_ratio_rec = json.load(open('./data/cnt_cusum_dict.json'))
 #    estimator = ScoreEstimation()
-    estimator = lgbm()
-    decider = DecisionModuleOnline('/home/wangxuanxuan/computation-allocation/output/params.npy')
+    estimator = lgbm('/home/wangxuanxuan/computation-allocation/pred_gbm_model.txt')
+    decider = DecisionModuleOnline('/home/wangxuanxuan/computation-allocation/pred_params.npy')
     server.serve_forever()
