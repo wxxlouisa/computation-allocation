@@ -41,9 +41,9 @@ def data_transform():
     with open(CNT_PATH, 'w') as f:
         json.dump(cnt_dict, f)
 
-    df_shuffle = df.sample(frac=1.0, random_state=RANDOM_STATE)
-    df_train = df_shuffle.iloc[:int(len(df_shuffle) * 0.8), :]
-    df_eval = df_shuffle.iloc[int(len(df_shuffle) * 0.8):, :]
+    # df_shuffle = df.sample(frac=1.0, random_state=RANDOM_STATE)
+    df_train = df.iloc[:int(len(df) * 0.95), :]
+    df_eval = df.iloc[int(len(df) * 0.95):, :]
     return cnt_dict, df_train, df_eval, column_name_list
 
 def main():
@@ -56,7 +56,7 @@ def main():
 
         start_time = time.time()
 
-        for _epoch in range(1):
+        for _epoch in range(20):
             for _, uij in DataInput(df_train, 1024, column_name_list):
                 loss, spear, pear = model.train(sess, uij)
 
@@ -74,7 +74,7 @@ def main():
         eval_res_df = pd.DataFrame()
         eval_res_df['predict'] = output
         eval_res_df['label'] = uij['score']
-        eval_res_df.to_csv('/home/wangxuanxuan/computation-allocation/score_estimation/trans_data/eval_out.csv')
+        eval_res_df.to_csv('./trans_data/eval_out.csv')
 
         for _epoch in range(0):
             for _, uij in DataInput(df_eval, 512, column_name_list):
