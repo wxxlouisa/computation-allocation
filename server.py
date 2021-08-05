@@ -12,14 +12,10 @@ from decision_module.decision_module import DecisionModuleOnline
 class Resquest(BaseHTTPRequestHandler):
     def do_back_up(self, req_json, drop_rate):
         # return param: 0 or 1
-        my_set = {}
-        for key in cnt_ratio_rec:
-            if cnt_ratio_rec[key] > drop_rate:
-                break
-            else:
-                my_set[key] = 1
         loc = req_json['column_1'] #string
-        if (loc in my_set):
+        if (not loc in cnt_ratio_rec):
+            return 1
+        if (cnt_ratio_rec[loc] - eps <= drop_rate):
             return 1 # drop
         else:
             return 0 # do not drop
@@ -63,6 +59,7 @@ class Resquest(BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     host = ('0.0.0.0', 2002)
+    eps = 0.005
     server = HTTPServer(host, Resquest)
  #   print("Starting sever, listen at: %s:%s" % host)
     cnt_ratio_rec = json.load(open('./data/cnt_cusum_dict.json'))

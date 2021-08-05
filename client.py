@@ -35,7 +35,7 @@ if __name__ == '__main__':
     drop_cnt = 0
     data = pd.read_csv('./data/source.post.csv')
     my_rec = []
-    batch_size = 500
+    batch_size = 2000
     rate = 0.01
 
     for i in range(0, batch_size):
